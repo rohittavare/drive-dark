@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Drive Dark",
+  "version": "1.0",
+  "description": "Dark Theme for Google Drive",
+  "content_scripts": [
+    {
+        "js": ["scripts/content.js"],
+        "run_at": "document_end",
+        "matches": [
+            "https://docs.google.com/*"
+        ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["/assets/*"],
+      "matches": ["https://docs.google.com/*"],
+      "use_dynamic_url": true
+    }
+  ]
+}
