@@ -171,10 +171,13 @@ class DefaultText extends HtmlText {
 }
 
 class FlatButton extends Template {
-    constructor(hover_color, use_before = false, parent = undefined, target = undefined) {
+    constructor(hover_color, use_before = false, parent = undefined, target = undefined, background_div = undefined) {
         super(parent, target)
         this.hover_color = hover_color
+        // some buttons use the ::before property to set the background
         this.use_before = use_before
+        // for buttons which use a specific child diff for the background
+        this.background_div = background_div
     }
 
     get template() {
@@ -200,7 +203,10 @@ class FlatButton extends Template {
             },
         }
         cfg = Object.assign(cfg, (new DefaultText(this.resolve('div@[role=button], a@[role=button], div@[class*="-button"]:not([class*="button-"]), a@[class*="-button"]:not([class*="button-"]), button@'))).config)
-        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="checked"], a@[role=button][class=*="checked"], div@[class*="-button"]:not([class*="button-"])[class=*="checked"], a@[class*="-button"]:not([class*="button-"])[class=*="checked"], button@:active'))).config)
+        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="hover"][class*="active"], a@[role=button][class*="hover"][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]'))).config)
+        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="checked"], a@[role=button][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="checked"], button@:active'))).config)
+        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="hover"][class*="checked"], a@[role=button][class*="hover"][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], button@active'))).config)
+        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="active"], a@[role=button][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="active"]'))).config)
         if (this.use_before) {
             cfg = Object.assign(cfg, {
                 'div@[role=button]::before, a@[role=button]::before, div@[class*="-button"]:not([class*="button-"])::before, a@[class*="-button"]:not([class*="button-"])::before, button@::before': {
@@ -229,6 +235,32 @@ class FlatButton extends Template {
             })
             cfg = Object.assign(cfg, {
                 'div@[role=button][class*="active"]::before, a@[role=button][class*="active"]::before, div@[class*="-button"]:not([class*="button-"])[class*="active"]::before, a@[class*="-button"]:not([class*="button-"])[class*="active"]::before': {
+                    "background": HIGHLIGHT_BACKGROUND,
+                },
+            })
+        } else if (this.background_div != undefined) {
+            cfg = Object.assign(cfg, {
+                'div@[role=button][class*="hover"], div@[role=button]:hover, a@[role=button][class*="hover"], a@[role=button]:hover, div@[class*="-button"]:not([class*="button-"])[class*="hover"], a@[class*="-button"]:not([class*="button-"])[class*="hover"], button@hover, button@focus': {
+                    "background": this.hover_color,
+                },
+            })
+            cfg = Object.assign(cfg, {
+                'div@[role=button][class*="hover"][class*="checked"], a@[role=button][class*="hover"][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], button@active': {
+                    "background": HIGHLIGHT_BACKGROUND,
+                },
+            })
+            cfg = Object.assign(cfg, {
+                'div@[role=button][class*="hover"][class*="active"], a@[role=button][class*="hover"][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]': {
+                    "background": HIGHLIGHT_BACKGROUND,
+                },
+            })
+            cfg = Object.assign(cfg, {
+                'div@[role=button][class*="checked"], a@[role=button][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="checked"]': {
+                    "background": HIGHLIGHT_BACKGROUND,
+                },
+            })
+            cfg = Object.assign(cfg, {
+                'div@[role=button][class*="active"], a@[role=button][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="active"]': {
                     "background": HIGHLIGHT_BACKGROUND,
                 },
             })
@@ -439,6 +471,21 @@ class Sidebar extends Template {
     }
 }
 
+class SheetsTabBar extends Template {
+    get template() {
+        let cfg = {
+            "@ .docs-sheet-tab": {
+                "border": "none",
+            },
+            "@ #grid-bottom-bar": {
+                "border": "none",
+            },
+        }
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, this.resolve("@"))).config)
+        return cfg
+    }
+}
+
 class DefaultSettings {
     get config() {
         let cfg = {
@@ -506,6 +553,9 @@ class DefaultSettings {
         // cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(undefined, ".app-switcher-button", true)).config)
         cfg = Object.assign(cfg, (new BlueButton(undefined, ".miniChapterSwitcherView")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#grid-bottom-bar")).config)
+        
+        cfg = Object.assign(cfg, (new SheetsTabBar()).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(undefined, ".app-switcher-button", true)).config)
 
         return cfg
     }
