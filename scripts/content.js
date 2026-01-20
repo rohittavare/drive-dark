@@ -42,6 +42,41 @@ function get_content_path(asset) {
     return "url(" + chrome.runtime.getURL("assets/" + asset) + ")"
 }
 
+function modify_paths(paths, parents = undefined, modifiers = undefined, children = undefined) {
+    let split_paths = paths.split(", ")
+    if (parents != undefined) {
+        let parents_list = parents.split(', ')
+        let split_paths_temp = []
+        for (const parent of parents_list) {
+            for (const path of split_paths) {
+                split_paths_temp.push(parent + " " + path)
+            }
+        }
+        split_paths = split_paths_temp
+    }
+    if (modifiers != undefined) {
+        let modifiers_list = modifiers.split(', ')
+        let split_paths_temp = []
+        for (const modifier of modifiers_list) {
+            for (const path of split_paths) {
+                split_paths_temp.push(path + "" + modifier)
+            }
+        }
+        split_paths = split_paths_temp
+    }
+    if (children != undefined) {
+        let children_list = children.split(', ')
+        let split_paths_temp = []
+        for (const child of children_list) {
+            for (const path of split_paths) {
+                split_paths_temp.push(path + " " + children)
+            }
+        }
+        split_paths = split_paths_temp
+    }
+    return split_paths.join(', ')
+}
+
 class Template {
     constructor(parent = undefined, target = undefined) {
         this.parent = parent
@@ -181,135 +216,108 @@ class FlatButton extends Template {
     }
 
     get template() {
+        let button_selectors = [
+            'div@[role=button]',
+            'a@[role=button]',
+            'div@[role=tab]',
+            'a@[role=tab]',
+            'div@[class*="-button"]:not([class*="button-"]):not([class*="buttons"])',
+            'a@[class*="-button"]:not([class*="button-"]):not([class*="buttons"])',
+            'button@',
+        ].join(", ")
+        let svg_selectors = modify_paths(button_selectors, undefined, undefined, "svg")
+        let button_hover_selectors = modify_paths(button_selectors, undefined, [
+            ":hover",
+            '[class*="hover"]'
+        ].join(", "))
+        let button_active_modifiers = [
+            '[class*="checked"]',
+            '[class*="active"]',
+            '[class*="open"]',
+            ':active',
+            ':focus'
+        ]
+        let button_active_selectors = [
+            modify_paths(button_selectors, undefined, [
+                button_active_modifiers
+            ].join(", ")),
+            modify_paths(button_hover_selectors, undefined, [
+                button_active_modifiers
+            ].join(", ")),
+        ].join(", ")
+        let svg_active_selectors = modify_paths(button_active_selectors, undefined, undefined, "svg")
         let cfg = {
-            'div@[role=button], a@[role=button], div@[class*="-button"]:not([class*="button-"]), a@[class*="-button"]:not([class*="button-"]), button@': {
+            [button_selectors]: {
                 "background": "transparent",
                 "color": DEFAULT_TEXT,
-            },
-            'div@[role=button][class*="checked"], div@[role=button][class*="focus"][class*="checked"], div@[role=button][class*="checked"]:hover, div@[role=button][class*="checked"]:focus, button@:active': {
-                "background": HIGHLIGHT_BACKGROUND,
             },
             '@ .goog-flat-menu-button-dropdown': {
                 "border-color": DEFAULT_TEXT + " transparent",
             },
-            'div@[role=button] svg, button@ svg, a@[role=button] svg, div@[class*="-button"]:not([class*="button-"]), a@[class*="-button"]:not([class*="button-"])': {
+            [svg_selectors]: {
                 "fill": DEFAULT_TEXT,
             },
-            'div@[role=button][class*="checked"] svg, div@[role=button][class*="active"] svg, button@:active svg, a@[role=button][class*="checked"] svg, a@[role=button][class*="active"] svg, div@[class*="-button"]:not([class*="button-"])[class=*="checked"], a@[class*="-button"]:not([class*="button-"])[class=*="checked"], div@[class*="-button"]:not([class*="button-"])[class=*="active"], a@[class*="-button"]:not([class*="button-"])[class=*="active"]': {
-                "fill": HIGHLIGHT_TEXT,
-            },
-            'div@[role=button][class*="checked"] svg, div@[role=button][class*="active"] svg, button@:active svg, a@[role=button][class*="checked"] svg, a@[role=button][class*="active"] svg, div@[class*="-button"]:not([class*="button-"])[class=*="checked"], a@[class*="-button"]:not([class*="button-"])[class=*="checked"], div@[class*="-button"]:not([class*="button-"])[class=*="active"], a@[class*="-button"]:not([class*="button-"])[class=*="active"]': {
+            [svg_active_selectors]: {
                 "fill": HIGHLIGHT_TEXT,
             },
         }
-        cfg = Object.assign(cfg, (new DefaultText(this.resolve('div@[role=button], a@[role=button], div@[class*="-button"]:not([class*="button-"]), a@[class*="-button"]:not([class*="button-"]), button@'))).config)
-        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="hover"][class*="active"], a@[role=button][class*="hover"][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]'))).config)
-        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="checked"], a@[role=button][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="checked"], button@:active'))).config)
-        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="hover"][class*="checked"], a@[role=button][class*="hover"][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], button@active'))).config)
-        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve('div@[role=button][class*="active"], a@[role=button][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="active"]'))).config)
+        cfg = Object.assign(cfg, (new DefaultText(this.resolve(button_selectors))).config)
+        cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve(button_active_selectors))).config)
+
+        let button_hover_background_selectors = button_hover_selectors
+        let button_active_background_selectors = button_active_selectors
         if (this.use_before) {
             cfg = Object.assign(cfg, {
-                'div@[role=button]::before, a@[role=button]::before, div@[class*="-button"]:not([class*="button-"])::before, a@[class*="-button"]:not([class*="button-"])::before, button@::before': {
+                [button_hover_background_selectors]: {
+                    "background": "transparent",
+                },
+                [button_active_background_selectors]: {
                     "background": "transparent",
                 },
             })
+            button_hover_background_selectors = modify_paths(button_hover_background_selectors, undefined, "::before")
+            button_active_background_selectors = modify_paths(button_active_background_selectors, undefined, "::before")
+        } else if (this.background_div) {
             cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"]::before, div@[role=button]:hover::before, a@[role=button][class*="hover"]::before, a@[role=button]:hover::before, div@[class*="-button"]:not([class*="button-"])[class*="hover"]::before, a@[class*="-button"]:not([class*="button-"])[class*="hover"]::before, button@hover::before, button@focus::before': {
-                    "background": this.hover_color,
+                [button_hover_background_selectors]: {
+                    "background": "transparent",
+                },
+                [button_active_background_selectors]: {
+                    "background": "transparent",
                 },
             })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="checked"]::before, a@[role=button][class*="hover"][class*="checked"]::before, div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"]::before, a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"]::before, button@active::before': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="checked"]::before, a@[role=button][class*="checked"]::before, div@[class*="-button"]:not([class*="button-"])[class*="checked"]::before, a@[class*="-button"]:not([class*="button-"])[class*="checked"]::before': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="active"]::before, a@[role=button][class*="hover"][class*="active"]::before, div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]::before, a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]::before': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="active"]::before, a@[role=button][class*="active"]::before, div@[class*="-button"]:not([class*="button-"])[class*="active"]::before, a@[class*="-button"]:not([class*="button-"])[class*="active"]::before': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-        } else if (this.background_div != undefined) {
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"], div@[role=button]:hover, a@[role=button][class*="hover"], a@[role=button]:hover, div@[class*="-button"]:not([class*="button-"])[class*="hover"], a@[class*="-button"]:not([class*="button-"])[class*="hover"], button@hover, button@focus': {
-                    "background": this.hover_color,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="checked"], a@[role=button][class*="hover"][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], button@active': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="active"], a@[role=button][class*="hover"][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="checked"], a@[role=button][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="checked"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="active"], a@[role=button][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="active"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-        } else {
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"], div@[role=button]:hover, a@[role=button][class*="hover"], a@[role=button]:hover, div@[class*="-button"]:not([class*="button-"])[class*="hover"], a@[class*="-button"]:not([class*="button-"])[class*="hover"], button@hover, button@focus': {
-                    "background": this.hover_color,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="checked"], a@[role=button][class*="hover"][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="checked"], button@active': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="hover"][class*="active"], a@[role=button][class*="hover"][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="hover"][class*="active"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="checked"], a@[role=button][class*="checked"], div@[class*="-button"]:not([class*="button-"])[class*="checked"], a@[class*="-button"]:not([class*="button-"])[class*="checked"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
-            cfg = Object.assign(cfg, {
-                'div@[role=button][class*="active"], a@[role=button][class*="active"], div@[class*="-button"]:not([class*="button-"])[class*="active"], a@[class*="-button"]:not([class*="button-"])[class*="active"]': {
-                    "background": HIGHLIGHT_BACKGROUND,
-                },
-            })
+            button_hover_background_selectors = modify_paths(button_hover_background_selectors, undefined, undefined, this.background_div)
+            button_active_background_selectors = modify_paths(button_active_background_selectors, undefined, undefined, this.background_div)
         }
+
+        cfg = Object.assign(cfg, {
+            [button_hover_background_selectors]: {
+                "background": this.hover_color,
+            },
+            [button_active_background_selectors]: {
+                "background": HIGHLIGHT_BACKGROUND,
+            }
+        })
+
         return cfg
     }
 }
 
 class FlatButtonDefaultBackground extends FlatButton {
-    constructor(parent = undefined, target = undefined, use_before = false) {
-        super(DEFAULT_BACKGROUND_HOVER, use_before, parent, target)
+    constructor(parent = undefined, target = undefined, use_before = false, background_div = undefined) {
+        super(DEFAULT_BACKGROUND_HOVER, use_before, parent, target, background_div)
     }
 }
 
 class FlatButtonLightBackground extends FlatButton {
-    constructor(parent = undefined, target = undefined, use_before = false) {
-        super(LIGHT_BACKGROUND_HOVER, use_before, parent, target)
+    constructor(parent = undefined, target = undefined, use_before = false, background_div = undefined) {
+        super(LIGHT_BACKGROUND_HOVER, use_before, parent, target, background_div)
     }
 }
 
 class FlatButtonDarkBackground extends FlatButton {
-    constructor(parent = undefined, target = undefined, use_before = false) {
-        super(DARK_BACKGROUND_HOVER, use_before, parent, target)
+    constructor(parent = undefined, target = undefined, use_before = false, background_div = undefined) {
+        super(DARK_BACKGROUND_HOVER, use_before, parent, target, background_div)
     }
 }
 
@@ -540,7 +548,8 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, ".docs-homescreen-item-container .docs-homescreen-grid-header")).config)
         
         // ===== docs edit page =====
-        cfg = Object.assign(cfg, (new Banner("#docs-chrome")).config)
+        // cfg = Object.assign(cfg, (new Banner("#docs-chrome")).config)
+        cfg = Object.assign(cfg, (new Banner("div[role=banner]")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#docs-titlebar .docs-title-input-wrapper .docs-title-input")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docs-main-toolbars")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docs-instant-bubble-container")).config)
@@ -555,7 +564,8 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#grid-bottom-bar")).config)
         
         cfg = Object.assign(cfg, (new SheetsTabBar()).config)
-        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(undefined, ".app-switcher-button", true)).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-collapser-button-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-app-switcher-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
 
         return cfg
     }
