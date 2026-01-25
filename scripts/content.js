@@ -217,12 +217,21 @@ class FlatButton extends Template {
 
     get template() {
         let button_selectors = [
+            'div@[role=checkbox]',
+            'span@[role=checkbox]',
             'div@[role=button]',
             'a@[role=button]',
             'div@[role=tab]',
             'a@[role=tab]',
-            'div@[class*="-button"]:not([class*="button-"]):not([class*="buttons"])',
-            'a@[class*="-button"]:not([class*="button-"]):not([class*="buttons"])',
+            'div@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'button@',
+        ].join(", ")
+        let button_selectors_wo_tabs = [
+            'div@[role=button]',
+            'a@[role=button]',
+            'div@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
             'button@',
         ].join(", ")
         let svg_selectors = modify_paths(button_selectors, undefined, undefined, "svg")
@@ -234,16 +243,13 @@ class FlatButton extends Template {
             '[class*="checked"]',
             '[class*="active"]',
             '[class*="open"]',
+            '[class*="filter-applied"]',
             ':active',
             ':focus'
-        ]
+        ].join(", ")
         let button_active_selectors = [
-            modify_paths(button_selectors, undefined, [
-                button_active_modifiers
-            ].join(", ")),
-            modify_paths(button_hover_selectors, undefined, [
-                button_active_modifiers
-            ].join(", ")),
+            modify_paths(button_selectors_wo_tabs, undefined, button_active_modifiers),
+            modify_paths(button_selectors_wo_tabs, undefined, button_active_modifiers),
         ].join(", ")
         let svg_active_selectors = modify_paths(button_active_selectors, undefined, undefined, "svg")
         let cfg = {
@@ -443,6 +449,8 @@ class Banner extends Template {
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(this.target, ".docs-titlebar-buttons")).config)
         cfg = Object.assign(cfg, (new DarkButton(this.target + " .docs-titlebar-buttons", ".docs-material-button-flat-primary")).config)
         cfg = Object.assign(cfg, (new BlueButton(this.target + " #docs-titlebar-share-client-button")).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(this.target, "#docs-save-indicator-badge", false, "#docs-save-indicator-id")).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(this.target, "#docs-star", false, "#docs-save-indicator-id")).config)
         return cfg
     }
 }
