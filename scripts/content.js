@@ -234,7 +234,7 @@ class FlatButton extends Template {
             'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
             'button@',
         ].join(", ")
-        let svg_selectors = modify_paths(button_selectors, undefined, undefined, "svg")
+        let svg_selectors = modify_paths(button_selectors, undefined, undefined, 'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])')
         let button_hover_selectors = modify_paths(button_selectors, undefined, [
             ":hover",
             '[class*="hover"]'
@@ -251,7 +251,7 @@ class FlatButton extends Template {
             modify_paths(button_selectors_wo_tabs, undefined, button_active_modifiers),
             modify_paths(button_selectors_wo_tabs, undefined, button_active_modifiers),
         ].join(", ")
-        let svg_active_selectors = modify_paths(button_active_selectors, undefined, undefined, "svg")
+        let svg_active_selectors = modify_paths(button_active_selectors, undefined, undefined, 'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])')
         let cfg = {
             [button_selectors]: {
                 "background": "transparent",
@@ -526,7 +526,7 @@ class DefaultSettings {
             ".docs-homescreen-img": {
                 "content": get_content_path("h_sprite63_grey_medium/gray.svg")
             },
-            "svg": {
+            'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
                 "fill": DEFAULT_TEXT,
             },
 
@@ -575,6 +575,7 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-collapser-button-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-app-switcher-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
 
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, '.waffleGriddySuggestionsBubbleRoot')).config) // convert to table bubble
         cfg = Object.assign(cfg, (new LightBackgroundArea('#docs-editor-container', '.kix-documentmetrics-widget[aria-labelledby=kix-documentmetrics-widget-content]')).config) // word count bubble
 
         return cfg
