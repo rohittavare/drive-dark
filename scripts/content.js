@@ -575,6 +575,8 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-collapser-button-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-app-switcher-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
 
+        cfg = Object.assign(cfg, (new LightBackgroundArea('#docs-editor-container', '.kix-documentmetrics-widget[aria-labelledby=kix-documentmetrics-widget-content]')).config) // word count bubble
+
         return cfg
     }
 }
