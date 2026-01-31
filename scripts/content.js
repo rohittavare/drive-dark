@@ -547,7 +547,7 @@ class DefaultSettings {
             ".docs-homescreen-img": {
                 "content": get_content_path("h_sprite63_grey_medium/gray.svg")
             },
-            ':not([id="pages"]) > svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
+            ':not([id=workspace]):not([id=pages]) > svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
                 "fill": DEFAULT_TEXT,
             },
 
