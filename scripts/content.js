@@ -502,6 +502,27 @@ class SheetsTabBar extends Template {
     }
 }
 
+class DrawCanvasArea extends Template {
+    get template() {
+        let cfg = {
+            '#workspace-container, #docs-editor': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '#sketchy-vertical-ruler, .docs-ruler-background, .docs-ruler-face, .sketchy-horizontal-ruler-container, #sketchy-horizontal-ruler': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '.docs-ruler-face-major-division, .docs-ruler-face-minor-division, #sketchy-vertical-ruler, #sketchy-horizontal-ruler, .docs-ruler-background-inner': {
+                "border-color": DEFAULT_SEPARATOR,
+            },
+            '#canvas.canvas': {
+                "background-image": get_content_path("waffle.png"),
+                "border-color": DEFAULT_SEPARATOR,
+            },
+        }
+        return cfg
+    }
+}
+
 class DefaultSettings {
     get config() {
         let cfg = {
@@ -526,7 +547,7 @@ class DefaultSettings {
             ".docs-homescreen-img": {
                 "content": get_content_path("h_sprite63_grey_medium/gray.svg")
             },
-            'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
+            ':not([id="pages"]) > svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
                 "fill": DEFAULT_TEXT,
             },
 
@@ -577,6 +598,7 @@ class DefaultSettings {
 
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, '.waffleGriddySuggestionsBubbleRoot')).config) // convert to table bubble
         cfg = Object.assign(cfg, (new LightBackgroundArea('#docs-editor-container', '.kix-documentmetrics-widget[aria-labelledby=kix-documentmetrics-widget-content]')).config) // word count bubble
+        cfg = Object.assign(cfg, (new DrawCanvasArea()).config)
 
         return cfg
     }
