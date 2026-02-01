@@ -115,10 +115,57 @@ class Template {
     }
 }
 
+class SheetsFunctionHelpDropdown extends Template {
+    get template() {
+        let cfg = {
+            '@ #t-formula-menu, @[class*="waffle-unified-formula-help-wrapper"]': {
+                "background": DEFAULT_BACKGROUND,
+                "border-radius": "15px",
+                "border": "1px solid " + DEFAULT_SEPARATOR,
+            },
+            '@ #waffle-formula-help': {
+                "background": DEFAULT_BACKGROUND,
+                "border-color": DEFAULT_SEPARATOR,
+                "border-radius": '0 0 15px 15px',
+            },
+            '@ .waffle-arguments-help-body': {
+                "background": DEFAULT_BACKGROUND,
+                "border-color": DEFAULT_SEPARATOR,
+            },
+            '@ .waffle-unified-formula-help-argument-help-container': {
+                "background": DEFAULT_BACKGROUND,
+                "border-radius": "15px",
+            },
+            '@ .waffle-function-category-row': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '@ .waffle-function-category-row:hover': {
+                "background": DEFAULT_BACKGROUND_HOVER,
+                "border": "none",
+            },
+        }
+        return cfg
+    }
+}
+
+class SheetsFormulaEditorBar extends Template {
+    get template() {
+        let cfg = {
+            '#formula-bar-name-box-wrapper, #formula-bar-name-box-wrapper div, #formula-bar-name-box-wrapper input': {
+                "background": DARK_BACKGROUND,
+            },
+            '#formula-bar-name-box-wrapper .formula-bar-separator div': {
+                "background": DEFAULT_SEPARATOR,
+            },
+        }
+        return cfg
+    }
+}
+
 class DarkDropdown extends Template {
     get template() {
         let cfg = {
-            '@.goog-menu[class*="menu-vertical"], @.goog-menu[class*="menu-horizontal"], @.goog-menu, @[role*="listbox"], #t-formula-menu': {
+            '@.goog-menu[class*="menu-vertical"], @.goog-menu[class*="menu-horizontal"], @.goog-menu, :not([class*="function-autocomplete"]) > div@[role*="listbox"]': {
                 "background": DEFAULT_BACKGROUND,
                 "border-radius": "15px",
                 "border": "1px solid " + DEFAULT_SEPARATOR,
@@ -126,10 +173,10 @@ class DarkDropdown extends Template {
             '@ .goog-palette-table, @ .waffle-data-validation-chips-footer': {
                 "border-color": DEFAULT_SEPARATOR,
             },
-            '@ .waffle-function-category-row, @ div[role="option"]': {
+            '@ div[role="option"], @ div[role="menuitem"]': {
                 "background": DEFAULT_BACKGROUND,
             },
-            '@ .waffle-function-category-row:hover, @ div[role="option"]:hover': {
+            '@ div[role="option"]:hover, @ div[role="menuitem"]:hover': {
                 "background": DEFAULT_BACKGROUND_HOVER,
                 "border": "none",
             },
@@ -219,18 +266,18 @@ class FlatButton extends Template {
         let button_selectors = [
             'div@[role=checkbox]',
             'span@[role=checkbox]',
-            'div@[role=button]',
+            'div@[role=button]:not([class*="formula-help-close-button"])',
             'a@[role=button]',
             'div@[role=tab]',
             'a@[role=tab]',
-            'div@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
-            'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'div@[class*="-button "]:not([class*="formula-help-close-button"]):not([role="link"])',//':not([class*="button-"]):not([class*="buttons"])',
+            'a@[class*="-button "]:not([role="link"])',//':not([class*="button-"]):not([class*="buttons"])',
             'button@',
         ].join(", ")
         let button_selectors_wo_tabs = [
-            'div@[role=button]',
+            'div@[role=button]:not([class*="formula-help-close-button"])',
             'a@[role=button]',
-            'div@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'div@[class*="-button "]:not([class*="formula-help-close-button"])',//':not([class*="button-"]):not([class*="buttons"])',
             'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
             'button@',
         ].join(", ")
@@ -527,10 +574,14 @@ class DefaultSettings {
     get config() {
         let cfg = {
             // default text settings
-            "a": {
+            'a, div[role="link"]': {
                 "color": LINK_TEXT,
             },
-            'span, p, div:not([class="waffle-dropdown-chip"])': {
+            '#waffle-name-box-open-sidebar-button.waffle-named-box-menu-open-sidebar-button': {
+                "color": LINK_TEXT,
+                "background": "transparent",
+            },
+            'span, p, div:not([class="waffle-dropdown-chip"]):not([role="link"])': {
                 "color": DEFAULT_TEXT,
             },
 
@@ -555,12 +606,16 @@ class DefaultSettings {
                 "border-color": DEFAULT_SEPARATOR,
             },
 
-            // default button settings
-            'div[role=button][class*="hover"], div[role=button][class*="focus"], div[role=button]:hover, div[role=button]:focus': {
-                "background": DEFAULT_BACKGROUND_HOVER,
+            'span[class*="instructions-border"]': {
+                "border-color": DEFAULT_SEPARATOR,
             },
+            "hr": {
+                "background": DEFAULT_SEPARATOR,
+            }
         }
         cfg = Object.assign(cfg, (new DarkDropdown()).config)
+        cfg = Object.assign(cfg, (new SheetsFunctionHelpDropdown()).config)
+        cfg = Object.assign(cfg, (new SheetsFormulaEditorBar()).config)
 
         // ===== docs home page =====
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, ".gb_Ha.gb_yb.gb_Bd.gb_Td.gb_Pd.gb_e.gb_1a.gb_dd")).config)
@@ -591,6 +646,8 @@ class DefaultSettings {
         // cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(undefined, ".app-switcher-button", true)).config)
         cfg = Object.assign(cfg, (new BlueButton(undefined, ".miniChapterSwitcherView")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#grid-bottom-bar")).config)
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, '.annotation-attribution')).config)
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "div:has(.cell-input.editable), .cell-input.editable")).config)
         
         cfg = Object.assign(cfg, (new SheetsTabBar()).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-collapser-button-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
