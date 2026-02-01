@@ -157,6 +157,9 @@ class SheetsFormulaEditorBar extends Template {
             '#formula-bar-name-box-wrapper .formula-bar-separator div': {
                 "background": DEFAULT_SEPARATOR,
             },
+            '#formula-bar-name-box-wrapper span, #formula-bar-name-box-wrapper .cell-input': {
+                "color": TITLE_TEXT,
+            },
         }
         return cfg
     }
