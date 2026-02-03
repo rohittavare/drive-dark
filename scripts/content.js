@@ -253,6 +253,24 @@ class BackgroundArea extends Template {
     }
 }
 
+class LinkPreview extends Template {
+    get template() {
+        let cfg = {
+            '#docs-link-bubble, div[role=dialog]': {
+                "border-radius": "15px",
+            },
+            'address': {
+                "color": DEFAULT_TEXT,
+            },
+            'div > div > img': {
+                "border-color": DEFAULT_SEPARATOR,
+            }
+        }
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, "#docs-link-bubble, div[role=dialog]")).config)
+        return cfg
+    }
+}
+
 class TitleText extends HtmlText {
     constructor(parent = undefined, target = undefined) {
         super(TITLE_TEXT, parent, target)
@@ -301,6 +319,7 @@ class FlatButton extends Template {
         ].join(", "))
         let button_active_modifiers = [
             '[class*="checked"]',
+            '[class*="selected"]',
             '[class*="active"]',
             '[class*="open"]',
             '[class*="filter-applied"]',
@@ -601,7 +620,7 @@ class DefaultSettings {
     get config() {
         let cfg = {
             // default text settings
-            'a, div[role="link"]': {
+            'a, div[role="link"], #docs-link-bubble a': {
                 "color": LINK_TEXT,
             },
             '#waffle-name-box-open-sidebar-button.waffle-named-box-menu-open-sidebar-button': {
@@ -684,6 +703,7 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new LightBackgroundArea('#docs-editor-container', '.kix-documentmetrics-widget[aria-labelledby=kix-documentmetrics-widget-content]')).config) // word count bubble
         cfg = Object.assign(cfg, (new DrawCanvasArea()).config)
         cfg = Object.assign(cfg, (new Ruler()).config)
+        cfg = Object.assign(cfg, (new LinkPreview()).config)
 
         return cfg
     }
