@@ -165,6 +165,16 @@ class SheetsFormulaEditorBar extends Template {
     }
 }
 
+class DocumentTabsPanel extends Template {
+    get template() {
+        let cfg = {
+        }
+        cfg = Object.apply(cfg, (new DefaultBackgroundArea(undefined, '.navigation-widget-hat')).config)
+        cfg = Object.apply(cfg, (new DefaultBackgroundArea(undefined, '.kix-outlines-widget-header-contents')).config)
+        return cfg
+    }
+}
+
 class DarkDropdown extends Template {
     get template() {
         let cfg = {
@@ -552,17 +562,31 @@ class SheetsTabBar extends Template {
     }
 }
 
+class Ruler extends Template {
+    get template() {
+        let cfg = {
+            '#sketchy-vertical-ruler, #kix-horizontal-ruler, #kix-vertical-ruler, .docs-ruler-background, .docs-ruler-face, .sketchy-horizontal-ruler-container, #sketchy-horizontal-ruler': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '.docs-ruler-face-major-division, #kix-horizontal-ruler, #kix-vertical-ruler, .docs-ruler-face-minor-division, #sketchy-vertical-ruler, #sketchy-horizontal-ruler, .docs-ruler-background-inner': {
+                "border-color": DEFAULT_SEPARATOR,
+            },
+            '.docs-vertical-ruler-active-indicator': {
+                "background": DEFAULT_SEPARATOR,
+            },
+            '#kix-vertical-ruler:before': {
+                "background": "transparent",
+            },
+        }
+        return cfg
+    }
+}
+
 class DrawCanvasArea extends Template {
     get template() {
         let cfg = {
             '#workspace-container, #docs-editor': {
                 "background": DEFAULT_BACKGROUND,
-            },
-            '#sketchy-vertical-ruler, .docs-ruler-background, .docs-ruler-face, .sketchy-horizontal-ruler-container, #sketchy-horizontal-ruler': {
-                "background": DEFAULT_BACKGROUND,
-            },
-            '.docs-ruler-face-major-division, .docs-ruler-face-minor-division, #sketchy-vertical-ruler, #sketchy-horizontal-ruler, .docs-ruler-background-inner': {
-                "border-color": DEFAULT_SEPARATOR,
             },
             '#canvas.canvas': {
                 "background-image": get_content_path("waffle.png"),
@@ -659,6 +683,7 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, '.waffleGriddySuggestionsBubbleRoot')).config) // convert to table bubble
         cfg = Object.assign(cfg, (new LightBackgroundArea('#docs-editor-container', '.kix-documentmetrics-widget[aria-labelledby=kix-documentmetrics-widget-content]')).config) // word count bubble
         cfg = Object.assign(cfg, (new DrawCanvasArea()).config)
+        cfg = Object.assign(cfg, (new Ruler()).config)
 
         return cfg
     }
