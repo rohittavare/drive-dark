@@ -312,7 +312,11 @@ class FlatButton extends Template {
             'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
             'button@',
         ].join(", ")
-        let svg_selectors = modify_paths(button_selectors, undefined, undefined, 'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])')
+        let svg_suffix = [
+            'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])',
+            'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"]) > path:not([fill*="none"])',
+        ].join(', ')
+        let svg_selectors = modify_paths(button_selectors, undefined, undefined, svg_suffix)
         let button_hover_selectors = modify_paths(button_selectors, undefined, [
             ":hover",
             '[class*="hover"]'
@@ -349,6 +353,7 @@ class FlatButton extends Template {
         cfg = Object.assign(cfg, (new DefaultText(this.resolve(button_selectors))).config)
         cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve(button_active_selectors))).config)
 
+        let button_background_selectors = button_selectors
         let button_hover_background_selectors = button_hover_selectors
         let button_active_background_selectors = button_active_selectors
         if (this.use_before) {
@@ -360,6 +365,7 @@ class FlatButton extends Template {
                     "background": "transparent",
                 },
             })
+            button_background_selectors = modify_paths(button_background_selectors, undefined, undefined, this.background_div)
             button_hover_background_selectors = modify_paths(button_hover_background_selectors, undefined, "::before")
             button_active_background_selectors = modify_paths(button_active_background_selectors, undefined, "::before")
         } else if (this.background_div) {
@@ -371,11 +377,15 @@ class FlatButton extends Template {
                     "background": "transparent",
                 },
             })
+            button_background_selectors = modify_paths(button_background_selectors, undefined, undefined, this.background_div)
             button_hover_background_selectors = modify_paths(button_hover_background_selectors, undefined, undefined, this.background_div)
             button_active_background_selectors = modify_paths(button_active_background_selectors, undefined, undefined, this.background_div)
         }
 
         cfg = Object.assign(cfg, {
+            [button_background_selectors]: {
+                "background": "transparent",
+            },
             [button_hover_background_selectors]: {
                 "background": this.hover_color,
             },
@@ -616,6 +626,46 @@ class DrawCanvasArea extends Template {
     }
 }
 
+class SlidesSpeakerNotes extends Template {
+    get template() {
+        let cfg = {
+            '#speakernotes, #speakernotes-workspace': {
+                "background": DARK_BACKGROUND,
+                "color": DEFAULT_TEXT,
+            },
+            '#speakernotes-workspace > svg text': {
+                "fill": DEFAULT_TEXT,
+            },
+        }
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#speakernotes-dragger, #speakernotes-dragger:hover")).config)
+        return cfg
+    }
+}
+
+class SlidesFilmstrip extends Template {
+    get template() {
+        let cfg = {
+            '#filmstrip > div > svg text.punch-filmstrip-thumbnail-pagenumber': {
+                'fill': DEFAULT_TEXT,
+            },
+            '#filmstrip, .punch-filmstrip-scroll': {
+                'background': DARK_BACKGROUND,
+            },
+            '#filmstrip svg rect.punch-filmstrip-thumbnail-border-inner': {
+                'stroke': DARK_BACKGROUND,
+            },
+            '.punch-filmstrip-controls-increase-size-button, .punch-filmstrip-controls-decrease-size-button, .punch-filmstrip-controls-reset-size-button': {
+                'border-radius': '50%',
+            },
+        }
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#filmstrip-controls")).config)
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".punch-filmstrip-controls-size-buttons")).config)
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('#filmstrip-visibility-controls-container', undefined, false, '.punch-filmstrip-visibility-toggle-icon-container')).config)
+        
+        return cfg
+    }
+}
+
 class DefaultSettings {
     get config() {
         let cfg = {
@@ -644,7 +694,7 @@ class DefaultSettings {
             ".docs-homescreen-img": {
                 "content": get_content_path("h_sprite63_grey_medium/gray.svg")
             },
-            ':not([id=workspace]):not([id=pages]) > svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])': {
+            ':not(id=filmstrip) :not([id=workspace]):not([id=pages]) > svg:not([class*="javascriptMaterialdesignGm2WizCircularProgressCircularProgressCircleGraphic"])': {
                 "fill": DEFAULT_TEXT,
             },
 
@@ -704,6 +754,8 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new DrawCanvasArea()).config)
         cfg = Object.assign(cfg, (new Ruler()).config)
         cfg = Object.assign(cfg, (new LinkPreview()).config)
+        cfg = Object.assign(cfg, (new SlidesSpeakerNotes()).config)
+        cfg = Object.assign(cfg, (new SlidesFilmstrip()).config)
 
         return cfg
     }
