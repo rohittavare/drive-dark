@@ -36,6 +36,7 @@ const MINIMAL_BUTTON_TEXT = '#a8c7fa'
 const MINIMAL_BUTTON_BORDER = "#8e918f"
 
 const HIGHLIGHT_BACKGROUND = '#004a77'
+const HIGHLIGHT_BACKGROUND_HOVER = '#075383'
 const HIGHLIGHT_TEXT = '#c2e7ff'
 
 function get_content_path(asset) {
@@ -294,24 +295,36 @@ class FlatButton extends Template {
     }
 
     get template() {
-        let button_selectors = [
+        let button_selectors_base = [
             'div@[role=checkbox]',
             'span@[role=checkbox]',
             'div@[role=button]:not([class*="formula-help-close-button"])',
             'a@[role=button]',
             'div@[role=tab]',
             'a@[role=tab]',
-            'div@[class*="-button "]:not([class*="formula-help-close-button"]):not([role="link"])',//':not([class*="button-"]):not([class*="buttons"])',
-            'a@[class*="-button "]:not([role="link"])',//':not([class*="button-"]):not([class*="buttons"])',
+            'div@[class*="-button "]:not([class*="formula-help-close-button"]):not([role="link"]):not([class*="navigation-button"])',
+            'a@[class*="-button "]:not([role="link"])',
+            'div@[class$="-button"]:not([class*="formula-help-close-button"]):not([role="link"]):not([class*="navigation-button"])',
+            'a@[class$="-button"]:not([role="link"])',
             'button@',
         ].join(", ")
         let button_selectors_wo_tabs = [
             'div@[role=button]:not([class*="formula-help-close-button"])',
             'a@[role=button]',
-            'div@[class*="-button "]:not([class*="formula-help-close-button"])',//':not([class*="button-"]):not([class*="buttons"])',
-            'a@[class*="-button "]',//':not([class*="button-"]):not([class*="buttons"])',
+            'div@[class="-button "]:not([class*="formula-help-close-button"]):not([class*="navigation-button"])',
+            'a@[class*="-button "]',
+            'div@[class$="-button"]:not([class*="formula-help-close-button"]):not([role="link"]):not([class*="navigation-button"])',
+            'a@[class$="-button"]:not([role="link"])',
             'button@',
         ].join(", ")
+        let cfg = {
+            [button_selectors_base]: {
+                "background": "transparent",
+                "color": DEFAULT_TEXT,
+            },
+        }
+        let button_selectors = modify_paths(button_selectors_base, undefined, ':not([class*="-disabled"]):not([aria-disabled*=true])')
+        button_selectors_wo_tabs = modify_paths(button_selectors_wo_tabs, undefined, ':not([class*="-disabled"]):not([aria-disabled*=true])')
         let svg_suffix = [
             'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])',
             'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"]) > path:not([fill*="none"])',
@@ -335,11 +348,7 @@ class FlatButton extends Template {
             modify_paths(button_selectors_wo_tabs, undefined, button_active_modifiers),
         ].join(", ")
         let svg_active_selectors = modify_paths(button_active_selectors, undefined, undefined, 'svg:not([class*="javascriptMaterialdesignGm3WizCircularProgressCircularProgressCircleGraphic"])')
-        let cfg = {
-            [button_selectors]: {
-                "background": "transparent",
-                "color": DEFAULT_TEXT,
-            },
+        cfg = Object.assign(cfg, {
             '@ .goog-flat-menu-button-dropdown': {
                 "border-color": DEFAULT_TEXT + " transparent",
             },
@@ -349,7 +358,7 @@ class FlatButton extends Template {
             [svg_active_selectors]: {
                 "fill": HIGHLIGHT_TEXT,
             },
-        }
+        })
         cfg = Object.assign(cfg, (new DefaultText(this.resolve(button_selectors))).config)
         cfg = Object.assign(cfg, (new HtmlText(HIGHLIGHT_TEXT, this.resolve(button_active_selectors))).config)
 
@@ -416,10 +425,16 @@ class FlatButtonDarkBackground extends FlatButton {
     }
 }
 
+class FlatButtonBlueBackground extends FlatButton {
+    constructor(parent = undefined, target = undefined, use_before = false, background_div = undefined) {
+        super(HIGHLIGHT_BACKGROUND_HOVER, use_before, parent, target, background_div)
+    }
+}
+
 class BlueButton extends Template {
     get template() {
         let cfg = {
-            'div@[role=button], div@[role=button], div@[role=button], button@': {
+            'div@[role=button], div@[class*=buttons], button@': {
                 "background": DEFAULT_BUTTON_BACKGROUND,
                 "border-color": DEFAULT_BACKGROUND,
             },
@@ -435,6 +450,7 @@ class BlueButton extends Template {
         }
         cfg = Object.assign(cfg, (new HtmlText(DEFAULT_BUTTON_TEXT, this.target)).config)
         cfg = Object.assign(cfg, (new HtmlText(DEFAULT_BUTTON_TEXT, undefined, this.target)).config)
+        cfg = Object.assign(cfg, (new FlatButtonBlueBackground(this.resolve('@ div >'))).config)
         return cfg
     }
 }
@@ -536,8 +552,8 @@ class Banner extends Template {
     get template() {
         let cfg = (new DefaultBackgroundArea(undefined, this.target)).config
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(this.target, ".docs-titlebar-buttons")).config)
-        cfg = Object.assign(cfg, (new DarkButton(this.target + " .docs-titlebar-buttons", ".docs-material-button-flat-primary")).config)
-        cfg = Object.assign(cfg, (new BlueButton(this.target + " #docs-titlebar-share-client-button")).config)
+        cfg = Object.assign(cfg, (new DarkButton(this.resolve("@ .docs-titlebar-buttons"), ".docs-material-button-flat-primary")).config)
+        cfg = Object.assign(cfg, (new BlueButton(this.resolve("@ #docs-titlebar-share-client-button >"))).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(this.target, "#docs-save-indicator-badge", false, "#docs-save-indicator-id")).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(this.target, "#docs-star", false, "#docs-save-indicator-id")).config)
         return cfg
@@ -666,6 +682,50 @@ class SlidesFilmstrip extends Template {
     }
 }
 
+class DocsTOC extends Template {
+    get template() {
+        let cfg = {
+            '.navigation-item-vertical-line > div': {
+                'background': DEFAULT_SEPARATOR,
+            },
+            '.location-indicator-highlight > .navigation-item-vertical-line > .navigation-item-vertical-line-middle': {
+                'background': HIGHLIGHT_TEXT,
+            },
+            '.chapter-item .updating-navigation-item-list .navigation-item-list .navigation-item': {
+                'background': DEFAULT_BACKGROUND,
+            },
+            '#docs-editor-container .chapter-item .navigation-widget-row-controls div[aria-label="Remove from outline"]': {
+                'border-radius': '50%',
+            },
+            '.kix-outlines-widget-header-add-chapter-button': {
+                'border-radius': '50%',
+            },
+            '.kix-outlines-widget-header-shadow': {
+                'background': DEFAULT_SEPARATOR,
+            },
+            '.miniChapterSwitcherCore .docs-material-gm-select .docs-material-gm-select-outer-box':{
+                'background': HIGHLIGHT_BACKGROUND,
+            },
+            '.miniChapterSwitcherContainerView.breadcrumbSwitcherUiVariant .miniChapterSwitcherNavigationEntryPointMask': {
+                'background': HIGHLIGHT_BACKGROUND,
+            },
+            '.miniChapterSwitcherContainerView.breadcrumbSwitcherUiVariant .miniChapterSwitcherMultipleChapters .miniChapterSwitcherNavigationEntryPointIcon': {
+                'background': HIGHLIGHT_BACKGROUND,
+            },
+            '.miniChapterSwitcherContainerView.breadcrumbSwitcherUiVariant .miniChapterSwitcherNavigationEntryPointIcon': {
+                'background': HIGHLIGHT_BACKGROUND,
+            }
+        }
+        cfg = Object.assign(cfg, (new FlatButtonDefaultBackground("#docs-editor-container .navigation-widget-hat", ".navigation-widget-hat-close", false, '.navigation-widget-hat-close-button-outer-box')).config)
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, ".navigation-widget")).config)
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, ".kix-outlines-widget-header-contents")).config)
+        cfg = Object.assign(cfg, (new BlueButton('#docs-editor-container .outlines-widget', ".chapter-item-label-and-buttons-container.chapter-item-label-and-buttons-container-selected")).config)
+        cfg = Object.assign(cfg, (new BlueButton('#docs-editor-container #kix-appview', ".miniChapterSwitcherView")).config)
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea('#docs-editor-container .outlines-widget', '.chapter-item-label-and-buttons-container')).config)
+        return cfg
+    }
+}
+
 class DefaultSettings {
     get config() {
         let cfg = {
@@ -676,6 +736,9 @@ class DefaultSettings {
             '#waffle-name-box-open-sidebar-button.waffle-named-box-menu-open-sidebar-button': {
                 "color": LINK_TEXT,
                 "background": "transparent",
+            },
+            '.appsElementsCalloutArrowArrowSurfaceTop': {
+                "background": LIGHT_BACKGROUND,
             },
             'span, p, div:not([class="waffle-dropdown-chip"]):not([role="link"])': {
                 "color": DEFAULT_TEXT,
@@ -741,6 +804,7 @@ class DefaultSettings {
         // cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, ".docs-companion-app-switcher-container")).config)
         // cfg = Object.assign(cfg, (new FlatButtonDefaultBackground(undefined, ".app-switcher-button", true)).config)
         cfg = Object.assign(cfg, (new BlueButton(undefined, ".miniChapterSwitcherView")).config)
+        cfg = Object.assign(cfg, (new BlueButton(undefined, ".javascriptMaterialdesignGm3WizButtonFilled-button")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#grid-bottom-bar")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, '.annotation-attribution')).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "div:has(.cell-input.editable), .cell-input.editable")).config)
@@ -756,6 +820,7 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new LinkPreview()).config)
         cfg = Object.assign(cfg, (new SlidesSpeakerNotes()).config)
         cfg = Object.assign(cfg, (new SlidesFilmstrip()).config)
+        cfg = Object.assign(cfg, (new DocsTOC()).config)
 
         return cfg
     }
