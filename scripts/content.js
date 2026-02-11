@@ -180,10 +180,24 @@ class DocumentTabsPanel extends Template {
 class DarkDropdown extends Template {
     get template() {
         let cfg = {
-            '@.goog-menu[class*="menu-vertical"], @.goog-menu[class*="menu-horizontal"], @.goog-menu, :not([class*="function-autocomplete"]) > div@[role*="listbox"]': {
+            '@.goog-menu[class*="menu-vertical"], @.goog-menu[class*="menu-horizontal"], @.goog-menu, :not([class*="function-autocomplete"]) > div@[role*="listbox"], @.waffle-data-validation-autocomplete-container[role="menu"], @.waffle-data-validation-autocomplete-container[role="menu"] .waffle-dropdown-chip-renderer': {
                 "background": DEFAULT_BACKGROUND,
                 "border-radius": "15px",
                 "border": "1px solid " + DEFAULT_SEPARATOR,
+            },
+            '@.waffle-data-validation-autocomplete-container[role="menu"] .docs-search-bar, @.waffle-data-validation-autocomplete-container[role="menu"] .docs-search-bar textarea': {
+                "background": DARK_BACKGROUND,
+                "color": DEFAULT_TEXT,
+                "border-radius": "15px",
+            },
+            '.waffle-data-validation-autocomplete-container .waffle-ac-renderer.waffle-dropdown-chip-renderer': {
+                "border-radius": '0 0 15px 15px',
+            },
+            '@.waffle-data-validation-autocomplete-container[role="menu"] .waffle-dropdown-chip-renderer, .waffle-data-validation-auto-complete-row-active': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '@.waffle-data-validation-autocomplete-container[role="menu"] .docs-search-bar': {
+                "border": "0px",
             },
             '@ .goog-palette-table, @ .waffle-data-validation-chips-footer': {
                 "border-color": DEFAULT_SEPARATOR,
@@ -207,7 +221,7 @@ class DarkDropdown extends Template {
             '@ .goog-palette-cell': {
                 "border-radius": "5px",
             },
-            '@.goog-menuitem.goog-menuitem-highlight, @.ac-row.ac-active, @.ac-row.ac-active div, @ .goog-palette-cell-hover': {
+            '@.goog-menuitem.goog-menuitem-highlight, @.ac-row.ac-active, @.ac-row.ac-active div, @ .goog-palette-cell-hover, @ .waffle-data-validation-auto-complete-row-active': {
                 "background": DEFAULT_BACKGROUND_HOVER,
             },
             '@ .goog-palette-cell-selected[role=menuitem], @ .goog-palette-cell-selected[role=menuitem] .punch-layouts-palette-label': {
