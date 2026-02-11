@@ -748,7 +748,7 @@ class Toolbar extends Template {
             '#docs-toolbar-wrapper .goog-toolbar-combo-button-caption:hover, #docs-toolbar-wrapper .goog-toolbar-menu-button-caption:hover': {
                 "background": "transparent",
             },
-            '#docs-toolbar-wrapper #fontSizeSelect input, #docs-toolbar-wrapper #zoomSelect input': {
+            '#docs-toolbar-wrapper #fontSizeSelect input, #docs-toolbar-wrapper #zoomSelect input, #docs-toolbar-wrapper #t-zoom input': {
                 "background": "transparent"
             },
             '#fontSizeSelect': {
