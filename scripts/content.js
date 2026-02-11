@@ -10,6 +10,7 @@ const LINK_TEXT = '#a8c7fa'
 const INACTIVE_TEXT = '#505251'
 
 const DEFAULT_SEPARATOR = '#444746'
+const LIGHT_BACKGROUND_SEPARATOR = '#747775'
 
 const DEFAULT_BACKGROUND = '#1e1f20'
 const DEFAULT_BACKGROUND_HOVER = '#2d2e2e'
@@ -311,8 +312,8 @@ class FlatButton extends Template {
         let button_selectors_wo_tabs = [
             'div@[role=button]:not([class*="formula-help-close-button"])',
             'a@[role=button]',
-            'div@[class="-button "]:not([class*="formula-help-close-button"]):not([class*="navigation-button"])',
-            'a@[class*="-button "]',
+            'div@[class*="-button "]:not([class*="formula-help-close-button"]):not([role="link"]):not([class*="navigation-button"])',
+            'a@[class*="-button "]:not([role="link"])',
             'div@[class$="-button"]:not([class*="formula-help-close-button"]):not([role="link"]):not([class*="navigation-button"])',
             'a@[class$="-button"]:not([role="link"])',
             'button@',
@@ -524,7 +525,10 @@ class LightBackgroundArea extends Template {
         let cfg = {
             "@": {
                 "background": LIGHT_BACKGROUND,
-            }
+            },
+            '@ div[role=separator], @ div[class*="separator"], @ div[class=*="divider"]': {
+                "border-color": LIGHT_BACKGROUND_SEPARATOR,
+            },
         }
         cfg = Object.assign(cfg, (new FlatButtonLightBackground(this.target)).config)
         cfg = Object.assign(cfg, (new Input(DEFAULT_BACKGROUND, this.target)).config)
@@ -714,6 +718,15 @@ class DocsTOC extends Template {
             },
             '.miniChapterSwitcherContainerView.breadcrumbSwitcherUiVariant .miniChapterSwitcherNavigationEntryPointIcon': {
                 'background': HIGHLIGHT_BACKGROUND,
+            },
+            '.miniChapterSwitcherView.miniChapterSwitcherCollapsed .docs-material-gm-select-outer-box': {
+                "border-color": "transparent",
+            },
+            '.left-sidebar-container': {
+                "background": DEFAULT_BACKGROUND,
+            },
+            '.left-sidebar-container.navigation-widget-in-pageless-format .left-sidebar-container-content-child': {
+                "box-shadow": "none",
             }
         }
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground("#docs-editor-container .navigation-widget-hat", ".navigation-widget-hat-close", false, '.navigation-widget-hat-close-button-outer-box')).config)
@@ -722,6 +735,34 @@ class DocsTOC extends Template {
         cfg = Object.assign(cfg, (new BlueButton('#docs-editor-container .outlines-widget', ".chapter-item-label-and-buttons-container.chapter-item-label-and-buttons-container-selected")).config)
         cfg = Object.assign(cfg, (new BlueButton('#docs-editor-container #kix-appview', ".miniChapterSwitcherView")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea('#docs-editor-container .outlines-widget', '.chapter-item-label-and-buttons-container')).config)
+        return cfg
+    }
+}
+
+class Toolbar extends Template {
+    get template() {
+        let cfg = {
+            '#docs-toolbar-wrapper .goog-toolbar-combo-button-caption, #docs-toolbar-wrapper .goog-toolbar-menu-button-caption': {
+                "background": "transparent",
+            },
+            '#docs-toolbar-wrapper .goog-toolbar-combo-button-caption:hover, #docs-toolbar-wrapper .goog-toolbar-menu-button-caption:hover': {
+                "background": "transparent",
+            },
+            '#docs-toolbar-wrapper #fontSizeSelect input, #docs-toolbar-wrapper #zoomSelect input': {
+                "background": "transparent"
+            },
+            '#fontSizeSelect': {
+                "border-color": DEFAULT_SEPARATOR
+            },
+            '.docs-gm .goog-toolbar-separator.goog-inline-block': {
+                "border-color": LIGHT_BACKGROUND_SEPARATOR
+            },
+            '#docs-font-family, #headingStyleSelect': {
+                "border-color": "transparent"
+            },
+        }
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, "#docs-toolbar-wrapper")).config)
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docs-toolbar-more-toolbar, .docs-toolbar-more-bubble")).config)
         return cfg
     }
 }
@@ -794,7 +835,6 @@ class DefaultSettings {
         // cfg = Object.assign(cfg, (new Banner("#docs-chrome")).config)
         cfg = Object.assign(cfg, (new Banner("div[role=banner]")).config)
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "#docs-titlebar .docs-title-input-wrapper .docs-title-input")).config)
-        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docs-main-toolbars")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docs-instant-bubble-container")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".appsSketchyContentLibraryRailToolbar ")).config)
         cfg = Object.assign(cfg, (new Sidebar()).config)
@@ -810,6 +850,7 @@ class DefaultSettings {
         cfg = Object.assign(cfg, (new DefaultBackgroundArea(undefined, "div:has(.cell-input.editable), .cell-input.editable")).config)
         
         cfg = Object.assign(cfg, (new SheetsTabBar()).config)
+        cfg = Object.assign(cfg, (new Toolbar()).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-collapser-button-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
         cfg = Object.assign(cfg, (new FlatButtonDefaultBackground('.companion-app-switcher-container', ".app-switcher-button", false, '.app-switcher-button-icon-background')).config)
 
