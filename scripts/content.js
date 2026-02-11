@@ -210,8 +210,12 @@ class DarkDropdown extends Template {
             '@.goog-menuitem.goog-menuitem-highlight, @.ac-row.ac-active, @.ac-row.ac-active div, @ .goog-palette-cell-hover': {
                 "background": DEFAULT_BACKGROUND_HOVER,
             },
-            '@ .goog-palette-cell-selected': {
-                "background": HIGHLIGHT_BACKGROUND
+            '@ .goog-palette-cell-selected[role=menuitem], @ .goog-palette-cell-selected[role=menuitem] .punch-layouts-palette-label': {
+                "background": HIGHLIGHT_BACKGROUND,
+                "color": HIGHLIGHT_TEXT,
+            },
+            '@ .docs-preview-palette-item': {
+                "border": "0px",
             },
             "@ .goog-palette-cell-selected .docs-icon-img": {
                 "content": get_content_path("material_common_sprite909/blue.svg")
@@ -571,16 +575,25 @@ class Sidebar extends Template {
 
     get template() {
         let cfg = {
-            "@": {
+            "@, @ .punch-theme-sidebar-in-presentation-content": {
                 "border": "0px",
                 "background": LIGHT_BACKGROUND,
             },
             "@ > div": {
-                "border-color": DEFAULT_SEPARATOR,
+                "border-color": LIGHT_BACKGROUND_SEPARATOR,
                 "background": "inherit",
             },
             "@ .docos-streampane-header": {
-                "border-color": DEFAULT_SEPARATOR,
+                "border-color": LIGHT_BACKGROUND_SEPARATOR,
+            },
+            "@ .punch-theme-sidebar-in-presentation-header": {
+                "border-color": LIGHT_BACKGROUND_SEPARATOR,
+            },
+            "@ .punch-theme-sidebar-import-theme": {
+                "border-top-color": LIGHT_BACKGROUND_SEPARATOR,
+            },
+            "@ .docs-thumbnailcontrol-thumbnailcontainer": {
+                "border-color": DEFAULT_BACKGROUND,
             }
         }
 
