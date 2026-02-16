@@ -190,10 +190,10 @@ class DarkDropdown extends Template {
                 "color": DEFAULT_TEXT,
                 "border-radius": "15px",
             },
-            '.waffle-data-validation-autocomplete-container .waffle-ac-renderer.waffle-dropdown-chip-renderer': {
-                "border-radius": '0 0 15px 15px',
+            '.waffle-data-validation-autocomplete-container .waffle-ac-renderer.waffle-dropdown-chip-renderer, .waffle-dropdown-chip-renderer-upside-down': {
+                "border-radius": '15px',
             },
-            '@.waffle-data-validation-autocomplete-container[role="menu"] .waffle-dropdown-chip-renderer, .waffle-data-validation-auto-complete-row-active': {
+            '@.waffle-data-validation-autocomplete-container[role="menu"] .waffle-dropdown-chip-renderer, .waffle-data-validation-auto-complete-row-active, .waffle-dropdown-chip-renderer-upside-down': {
                 "background": DEFAULT_BACKGROUND,
             },
             '@.waffle-data-validation-autocomplete-container[role="menu"] .docs-search-bar': {
@@ -340,6 +340,7 @@ class FlatButton extends Template {
             [button_selectors_base]: {
                 "background": "transparent",
                 "color": DEFAULT_TEXT,
+                "box-shadow": "none",
             },
         }
         let button_selectors = modify_paths(button_selectors_base, undefined, ':not([class*="-disabled"]):not([aria-disabled*=true])')
@@ -456,6 +457,7 @@ class BlueButton extends Template {
             'div@[role=button], div@[class*=buttons], button@': {
                 "background": DEFAULT_BUTTON_BACKGROUND,
                 "border-color": DEFAULT_BACKGROUND,
+                "box-shadow": 'none',
             },
             "@ .docs-icon-img": {
                 "content": get_content_path("material_common_sprite909/blue.svg")
@@ -480,6 +482,8 @@ class DarkButton extends Template {
             'div@[role=button], div@[role=button], div@[role=button], button@': {
                 "background": MINIMAL_BUTTON_BACKGROUND,
                 "border": "1px solid " + MINIMAL_BUTTON_BORDER,
+                "color": MINIMAL_BUTTON_TEXT,
+                "box-shadow": "none",
             },
             'div@[role=button][class*="hover"], div@[role=button][class*="focus"], div@[role=button]:hover, div@[role=button]:focus, button@:hover, button@:focus': {
                 "background": MINIMAL_BUTTON_BACKGROUND_HOVER,
@@ -488,8 +492,7 @@ class DarkButton extends Template {
                 "border-color": MINIMAL_BUTTON_TEXT + " transparent"
             },
         }
-        cfg = Object.assign(cfg, (new HtmlText(MINIMAL_BUTTON_TEXT, this.resolve('div@[role=button], div@[role=button], div@[role=button], button@', false))).config)
-        cfg = Object.assign(cfg, (new HtmlText(MINIMAL_BUTTON_TEXT, undefined, this.resolve('div@[role=button], div@[role=button], div@[role=button], button@', false))).config)
+        cfg = Object.assign(cfg, (new HtmlText(MINIMAL_BUTTON_TEXT, this.resolve('div@[role=button], div@[role=button], div@[role=button], button@'))).config)
         return cfg
     }
 }
@@ -502,7 +505,7 @@ class Input extends Template {
 
     get template() {
         let cfg =  {
-            "input@, form@[role=search], div@[role=search]": {
+            "input@, form@[role=search], div@[role=search], div@[role=textbox], div@[role=combobox]": {
                 "background": this.background,
                 "color": DEFAULT_TEXT,
             },
@@ -566,6 +569,21 @@ class DarkBackgroundArea extends Template {
     }
 }
 
+class HighlightBackgroundArea extends Template {
+    get template() {
+        let cfg = {
+            "@": {
+                "background": HIGHLIGHT_BACKGROUND,
+            },
+            "@, @ div, @ span": {
+                "color": HIGHLIGHT_TEXT,
+            }
+        }
+        cfg = Object.assign(cfg, (new FlatButtonBlueBackground(this.target)).config)
+        return cfg
+    }
+}
+
 class Banner extends Template {
     constructor(target) {
         super(undefined, target)
@@ -608,6 +626,9 @@ class Sidebar extends Template {
             },
             "@ .docs-thumbnailcontrol-thumbnailcontainer": {
                 "border-color": DEFAULT_BACKGROUND,
+            },
+            ".filter-applied .docs-material-menu-button-flat-default-dropdown": {
+                "opacity": "0",
             }
         }
 
@@ -615,9 +636,13 @@ class Sidebar extends Template {
         cfg = Object.assign(cfg, (new LightBackgroundArea(this.resolve("@"), '.waffle-datavalidation-view-rule-list')).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(this.resolve("@"), '.docos-streampane-zero-state')).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(this.resolve("@"), '.docos-streampane-header')).config)
-        cfg = Object.assign(cfg, (new DarkButton(this.resolve("@"), '.docos-streampane-zero-state-add-comment-button')).config)
+        cfg = Object.assign(cfg, (new LightBackgroundArea(this.resolve("@"), '.docos-streampane-all-filtered-out-state')).config)
+        cfg = Object.assign(cfg, (new DarkButton(this.resolve("@ .docos-streampane-zero-state .docos-streampane-zero-state-content"), '.docos-streampane-zero-state-add-comment-button.docs-material-button-fill-primary.docs-material-button')).config)
+        cfg = Object.assign(cfg, (new DarkButton(this.resolve("@ #docos-streampane-all-filtered-out-state .docos-streampane-all-filtered-out-state-content .docos-streampane-all-filtered-out-reset-filter"))).config)
         cfg = Object.assign(cfg, (new DarkButton(this.target, "docs-material-button")).config)
         cfg = Object.assign(cfg, (new LightBackgroundArea(this.target, '.docs-sidebar-tile-controls')).config)
+        cfg = Object.assign(cfg, (new HighlightBackgroundArea(this.target, 'div.docos-filter-settings-container > div.filter-applied')).config)
+        cfg = Object.assign(cfg, (new FlatButtonBlueBackground(this.resolve('@ .docos-filter-settings-container:has(.filter-applied)'), '.docos-filter-reset-button')).config)
         cfg = Object.assign(cfg, (new TitleText(this.resolve('@, @ div[class*="-header"]'), '[class*="-header"]')).config)
         return cfg
     }
@@ -794,6 +819,48 @@ class Toolbar extends Template {
     }
 }
 
+class CommentBubble extends Template {
+    get template() {
+        let cfg = {
+            '.docos-anchoreddocoview-input-pane div[role=combobox]': {
+                'border-color': LIGHT_BACKGROUND_SEPARATOR,
+            },
+            '.docos-anchoreddocoview-internal': {
+                'background': LIGHT_BACKGROUND,
+            },
+            '.docos-showrepliesbutton-line': {
+                'border-color': DEFAULT_SEPARATOR,
+            },
+            '.docos-showrepliesbutton-collapsed-internal-container': {
+                'background': DEFAULT_BACKGROUND,
+                'border-radius': '12px',
+                'border': '1px solid ' + DEFAULT_SEPARATOR,
+            },
+            '.docos-emoji-counter-button-post': {
+                'border': '0px',
+            },
+            '.docos-emoji-counter-button-tooltip': {
+                'box-shadow': 'none'
+            },
+            '#docs-editor-container .docos-anchoreddocoview-internal .docos-anchoreddocoview-content div.docos-replyview-emojis-wrapper div.docos-replyview-emojis .goog-container.goog-container-horizontal div.docos-emoji-counter-button-post.docos-emoji-counter-button-user-involved': {
+                'background': HIGHLIGHT_BACKGROUND
+            },
+            '#docs-editor-container .docos-anchoreddocoview-internal .docos-anchoreddocoview-content div.docos-replyview-emojis-wrapper div.docos-replyview-emojis div.docos-emoji-counter-button-post.docos-emoji-counter-button-user-involved .docs-material-button-content span.docos-emoji-counter-button-count': {
+                'color': HIGHLIGHT_TEXT
+            },
+            '.docos-replyview-emoji-controls .docs-material-button-raised-default': {
+                'box-shadow': 'none'
+            },
+        }
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docos-anchoreddocoview-input-pane")).config)
+        cfg = Object.assign(cfg, (new LightBackgroundArea(undefined, ".docos-anchoredreplyview")).config)
+        cfg = Object.assign(cfg, (new DefaultBackgroundArea(".docs-docos-activity-sidebar", ".docos-docoview-resolved, .docos-docoview-active, .docos-docoview-tesla-conflict")).config)
+        cfg = Object.assign(cfg, (new Input(DEFAULT_BACKGROUND, '.docos-anchoreddocoview-input-pane')).config)
+        cfg = Object.assign(cfg, (new TitleText('.docos-anchoreddocoview-input-pane, .docos-docoview-resolved, .docos-docoview-active', '.docos-author')).config)
+        return cfg
+    }
+}
+
 class DefaultSettings {
     get config() {
         let cfg = {
@@ -841,6 +908,7 @@ class DefaultSettings {
             }
         }
         cfg = Object.assign(cfg, (new DarkDropdown()).config)
+        cfg = Object.assign(cfg, (new CommentBubble()).config)
         cfg = Object.assign(cfg, (new SheetsFunctionHelpDropdown()).config)
         cfg = Object.assign(cfg, (new SheetsFormulaEditorBar()).config)
 
@@ -957,13 +1025,13 @@ function transform() {
         new MutationObserver(dark_app_picker_callback).observe(document.getElementsByClassName('gb_2d gb_wb gb_Sd')[0], {
             'childList': true, 'subtree': true
         })
-        new MutationObserver(dark_user_page_callback).observe(document.getElementsByClassName('gb_2d gb_wb gb_Sd')[0], {
-            'childList': true, 'subtree': true
-        })
+        // new MutationObserver(dark_user_page_callback).observe(document.getElementsByClassName('gb_2d gb_wb gb_Sd')[0], {
+        //     'childList': true, 'subtree': true
+        // })
     }
-    new MutationObserver(dark_file_picker_callback(s)).observe(document.body, {
-        'childList': true, 'subtree': true
-    })
+    // new MutationObserver(dark_file_picker_callback(s)).observe(document.body, {
+    //     'childList': true, 'subtree': true
+    // })
     es = document.getElementsByClassName('kix-appview-editor')
     if (es.length > 0) {
         let e = es[0]
